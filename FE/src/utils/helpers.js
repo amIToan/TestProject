@@ -1,0 +1,50 @@
+import axios from "axios";
+import moment from "moment"
+export function useAuth() {
+  const token = localStorage.getItem("token")
+  return token;
+}
+export function getUserInfo() {
+  let userInfo = localStorage.getItem("userInfor") ? JSON.parse(localStorage.getItem("userInfor")) : null;
+  return userInfo;
+}
+const BASE_URL = "http://localhost:3000/api"
+axios.defaults.withCredentials = true;
+export const costumedRequest = axios.create({
+  baseURL: BASE_URL,
+  withCredentials: true,
+  //credentials: "include",
+});
+costumedRequest.interceptors.request.use((config) => {
+  const authToken = useAuth();
+  const timeExpired =
+    moment(localStorage.getItem("userInfor")?.access_token_expires_at).toDate().getTime();
+    console.log("timeExpired", timeExpired);
+    console.log("noww", new Date().getTime());
+    console.log(
+      new Date(
+        localStorage.getItem("userInfor")?.access_token_expires_at
+      ).getTime()
+    );
+  if (authToken && new Date().getTime() <= timeExpired) {
+    config.headers.Authorization = `Bearer ${authToken}`;
+  }else{
+     localStorage.removeItem("token");
+     localStorage.removeItem("userInfor");
+  }
+  return config;
+});
+// costumedRequest.interceptors.response.use(
+//   (response) => response,
+//   (error) => {
+//     const status = error.response ? error.response.status : null;
+
+//     if (status === 401) {
+//       //Handle unauthorized access
+//       localStorage.removeItem("token");
+//       window.location.href = "/login";
+//     } 
+//     return Promise.reject(error);
+//   }
+// );
+
