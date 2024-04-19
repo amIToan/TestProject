@@ -27,10 +27,10 @@ type UserRes struct {
 }
 
 func (server *Server) CreateUser(ctx *gin.Context) {
-	isValid := CheckAuthAndExit(ctx)
-	if !isValid {
-		return
-	}
+	// isValid := CheckAuthAndExit(ctx)
+	// if !isValid {
+	// 	return
+	// }
 	var req CreatedUserParams
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))

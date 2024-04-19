@@ -54,10 +54,10 @@ func (server *Server) setupRouter() {
 	//router.POST("/admin", server.CreateAdmin)
 	router.Static("/assets", "./assets")
 	router.POST("/users/login", server.Login)
+	router.POST("/users", server.CreateUser)
 	router.MaxMultipartMemory = 8 << 20 // 8 MiB
 	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 	//users
-	authRoutes.POST("/users", server.CreateUser)
 	authRoutes.POST("/users/update", server.UpdateUser)
 	//authors
 	authRoutes.POST("/author", server.CreateAuthor)
@@ -75,6 +75,7 @@ func (server *Server) setupRouter() {
 	authRoutes.GET("/books", server.GetBooks)
 	authRoutes.PUT("/book", server.UpdateBook)
 	authRoutes.DELETE("/book/delete/:id", server.DeleteBooks)
+	authRoutes.GET("books/title", server.GetBooksByTitle)
 	//book_genres
 	authRoutes.GET("/books_genres/:book_id", server.GetBookGenres)
 
@@ -94,19 +95,3 @@ func (server *Server) Start(address string) error {
 func (server *Server) GraceFullyShutdown(ctx context.Context) error {
 	return server.srv.Shutdown(ctx)
 }
-
-// func CORSMiddleware() gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-// 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-// 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
-// 		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
-
-// 		// if c.Request.Method == "OPTIONS" {
-// 		// 	c.AbortWithStatus(204)
-// 		// 	return
-// 		// }
-
-// 		c.Next()
-// 	}
-// }

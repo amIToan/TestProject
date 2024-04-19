@@ -170,6 +170,43 @@ func (q *Queries) GetBookLists(ctx context.Context) ([]GetBookListsRow, error) {
 	return items, nil
 }
 
+const getBooksByTitle = `-- name: GetBooksByTitle :many
+SELECT
+  book_id, title, description, image_links, price, publication_date, author_id
+FROM
+  books
+WHERE
+  title LIKE '%' || $1 || '%'
+`
+
+func (q *Queries) GetBooksByTitle(ctx context.Context, bookTitle pgtype.Text) ([]Book, error) {
+	rows, err := q.db.Query(ctx, getBooksByTitle, bookTitle)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Book{}
+	for rows.Next() {
+		var i Book
+		if err := rows.Scan(
+			&i.BookID,
+			&i.Title,
+			&i.Description,
+			&i.ImageLinks,
+			&i.Price,
+			&i.PublicationDate,
+			&i.AuthorID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateBookById = `-- name: UpdateBookById :one
 UPDATE
   books

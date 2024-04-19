@@ -175,3 +175,29 @@ func (server *Server) DeleteBooks(ctx *gin.Context) {
 		"message": "success",
 	})
 }
+
+type Keywords struct {
+	Keywords string `form:"keyword"`
+}
+
+func (server *Server) GetBooksByTitle(ctx *gin.Context) {
+	var Key Keywords
+	isValid := CheckAuthAndExit(ctx)
+	if !isValid {
+		return
+	}
+	if err := ctx.ShouldBind(&Key); err != nil {
+		ctx.JSON(http.StatusBadRequest, util.ErrorResponse(err))
+		return
+	}
+	pgKey := pgtype.Text{
+		String: Key.Keywords,
+		Valid:  true,
+	}
+	books, err := server.store.GetBooksByTitle(ctx, pgKey)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, util.ErrorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, books)
+}

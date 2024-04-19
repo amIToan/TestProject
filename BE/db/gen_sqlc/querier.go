@@ -26,6 +26,7 @@ type Querier interface {
 	GetBookById(ctx context.Context, bookID int64) (GetBookByIdRow, error)
 	GetBookGenres(ctx context.Context, bookID int64) ([]GetBookGenresRow, error)
 	GetBookLists(ctx context.Context) ([]GetBookListsRow, error)
+	GetBooksByTitle(ctx context.Context, bookTitle pgtype.Text) ([]Book, error)
 	GetFirstFiftyOfAuthors(ctx context.Context) ([]Author, error)
 	GetGenreByNames(ctx context.Context, name pgtype.Text) ([]Genre, error)
 	GetGenres(ctx context.Context) ([]Genre, error)

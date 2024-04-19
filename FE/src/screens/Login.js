@@ -7,26 +7,27 @@ export const Login = () => {
   const [isLogin, setLoginForm] = useState(true);
   const onFinish = async (values) => {
     try {
-       if (isLogin) {
-         const {data} = await costumedRequest.post("/users/login", values);
-         console.log("data", data)
-         if (data?.access_token) {
+      if (isLogin) {
+        const { data } = await costumedRequest.post("/users/login", values);
+        if (data?.access_token) {
           localStorage.setItem("token", data.access_token);
-          localStorage.setItem("userInfor",JSON.stringify({
-            ...data.user,
-            access_token_expires_at: data.access_token_expires_at,
-          }));
-          console.log("data", data);
-         // navigate("/");
-         }
-       } else {
-         const res = await costumedRequest.post("/users");
-         console.log("register", res);
-       }
+          localStorage.setItem(
+            "userInfor",
+            JSON.stringify({
+              ...data.user,
+              access_token_expires_at: data.access_token_expires_at,
+            })
+          );
+          navigate("/");
+        }
+      } else {
+        console.log("Register", values);
+        const { data } = await costumedRequest.post("/users", {...values, role:"admin"});
+        data &&  setLoginForm(true);
+      }
     } catch (error) {
       console.log(error);
     }
-   
   };
   const onFinishFailed = (errorInfo) => {
     console.log("Failed:", errorInfo);

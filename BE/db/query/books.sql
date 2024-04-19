@@ -33,7 +33,14 @@ from
 WHERE
   book_id = $1;
 
-
+-- name: GetBooksByTitle :many
+SELECT
+  *
+FROM
+  books
+WHERE
+  title LIKE '%' || sqlc.arg(book_title) || '%';
+  
 -- name: UpdateBookById :one
 UPDATE
   books

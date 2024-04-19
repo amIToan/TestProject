@@ -1,9 +1,11 @@
 import { Card } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { DeleteFilled } from "@ant-design/icons";
 import BookModal from "../components/BookModal";
 import { costumedRequest } from "../utils/helpers";
+import { AppContext } from "../App";
 export const Books = () => {
+  const context = useContext(AppContext);
   const { Meta } = Card;
   const childRef = useRef(null);
   const [books, setBooks] = useState([]);
@@ -11,9 +13,10 @@ export const Books = () => {
   const [genres, setGenres] = useState();
   const [editedData, setEditData] = useState(null);
   async function fetchData() {
+    let queryString = context.keywords ? `books/title?keyword=${context.keywords}` : "/books"; 
     try {
       const data = await Promise.all([
-        costumedRequest.get("/books"),
+        costumedRequest.get(queryString),
         costumedRequest.get("/authors"),
         costumedRequest.get("/genres"),
       ]);
@@ -41,12 +44,12 @@ export const Books = () => {
   }
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [context.keywords]);
   const handleDeleteBook = async (id) => {
     if (!id) return;
     try {
       const { data } = await costumedRequest.delete(`/book/delete/${id}`);
-       data?.status == 200 && fetchData();
+       data?.status === 200 && fetchData();
     } catch (error) {
       console.error("err", error);
     }
@@ -66,7 +69,7 @@ export const Books = () => {
         />
       </div>
       <div className="flex flex-wrap items-stretch w-full">
-        {books?.length > 0 &&
+        {books && books.length > 0 &&
           books.map((item, index) => (
             <div
               className="min-w-40 w-[25%] max-w-[25%] p-2 relative costumed_hover"
